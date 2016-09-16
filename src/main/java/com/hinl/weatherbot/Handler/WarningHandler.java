@@ -2,6 +2,7 @@ package com.hinl.weatherbot.Handler;
 
 import com.hinl.weatherbot.Utils.Const;
 import com.hinl.weatherbot.Utils.RSSParser;
+import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 
 /**
@@ -16,7 +17,20 @@ public class WarningHandler extends BaseCommandHandler{
     }
 
     public String performAction(Update update) {
-        RSSParser parser = new RSSParser(Const.WeatherWarning_EN);
+        String url = Const.WeatherWarning_EN;
+        Message message = update.getMessage();
+        switch (getLanguage(message.getChatId().toString())){
+            case Lang_EN:
+                url = Const.WeatherWarning_EN;
+                break;
+            case Lang_TC:
+                url = Const.WeatherWarning_TC;
+                break;
+            case Lang_SC:
+                url = Const.WeatherWarning_SC;
+                break;
+        }
+        RSSParser parser = new RSSParser(url);
         return parser.getBody();
     }
 }

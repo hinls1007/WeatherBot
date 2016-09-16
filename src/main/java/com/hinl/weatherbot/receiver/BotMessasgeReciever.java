@@ -3,6 +3,7 @@ package com.hinl.weatherbot.receiver;
 import com.hinl.weatherbot.Handler.BaseCommandHandler;
 import com.hinl.weatherbot.Utils.Const;
 import com.hinl.weatherbot.Utils.DBHelper;
+import org.apache.http.util.TextUtils;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
@@ -22,6 +23,7 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
     private static final String TopicCommand = "topics";
 
     static HashMap<String, String> actionHandlerMapper = new HashMap<String, String>();
+    static HashMap<String, String> hiddenActionHandlerMapper = new HashMap<String, String>();
 
     public static String getCommands(){
         List<String> commands = new ArrayList<String>(actionHandlerMapper.keySet());
@@ -51,9 +53,23 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+    public static void registerHiddenHandler(Class<? extends BaseCommandHandler> handlerClass){
+        try {
+            String[] actions = handlerClass.getConstructor().newInstance().getHooks();
+            for(String action : actions){
+                hiddenActionHandlerMapper.put(action, handlerClass.getName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static BaseCommandHandler getHandler(String action){
         String actionHandlerClassName = actionHandlerMapper.get(action);
+        if (TextUtils.isEmpty(actionHandlerClassName)){
+            actionHandlerClassName = hiddenActionHandlerMapper.get(action);
+        }
 
         Class handlerClass = null;
         BaseCommandHandler commandHandler = null;

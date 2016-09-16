@@ -1,5 +1,6 @@
 package com.hinl.weatherbot;
 
+import com.hinl.weatherbot.Handler.ChangeLanguageHandler;
 import com.hinl.weatherbot.Handler.CurrentWeatherHandler;
 import com.hinl.weatherbot.Handler.WarningHandler;
 import com.hinl.weatherbot.Utils.DBHelper;
@@ -17,6 +18,7 @@ public class Main {
         DBHelper.init();
         BotMessasgeReciever.registerHandler(CurrentWeatherHandler.class);
         BotMessasgeReciever.registerHandler(WarningHandler.class);
+        BotMessasgeReciever.registerHiddenHandler(ChangeLanguageHandler.class);
         try {
             telegramBotsApi.registerBot(new BotMessasgeReciever());
         } catch (TelegramApiException e) {

@@ -105,17 +105,14 @@ public class DBHelper {
     }
 
     public static String getLanguage(String chat_id){
+        String lang = "";
         try {
             Connection c = getConnection();
             Statement stmt = c.createStatement();
             String q = "SELECT * FROM " + Table_CHAT + " WHERE " + Chat_id + "='" +chat_id + "'";
             ResultSet ret = stmt.executeQuery(q);
             if ( ret.next() ){
-                ret.close();
-                stmt.close();
-                c.commit();
-                c.close();
-                return ret.getString(Language);
+                lang = ret.getString(Language);
             }
 
             ret.close();
@@ -125,7 +122,7 @@ public class DBHelper {
         } catch (Exception e){
             e.printStackTrace();
         }
-        return "";
+        return lang;
     }
 
     public static void changeLanguage(String chat_id, String language){

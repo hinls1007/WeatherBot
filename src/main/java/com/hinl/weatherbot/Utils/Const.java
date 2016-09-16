@@ -10,8 +10,8 @@ import java.text.SimpleDateFormat;
 public class Const {
     public static DateFormat dateFormat = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy Z");
 
-    public static final String BOT_USERNAME = "";
-    public static final String BOT_TOKEN = "";
+    public static final String BOT_USERNAME = "HinlWeatherbot";
+    public static final String BOT_TOKEN = "275674234:AAEFc613KLVJl8EHfOzqFGRHR58_RrOh4BU";
 
     public static final String CurrentWeather_EN = "http://rss.weather.gov.hk/rss/CurrentWeather.xml";
     public static final String CurrentWeather_TC = "http://rss.weather.gov.hk/rss/CurrentWeather_uc.xml";

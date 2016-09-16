@@ -2,6 +2,7 @@ package com.hinl.weatherbot.Handler;
 
 import com.hinl.weatherbot.Utils.Const;
 import com.hinl.weatherbot.Utils.RSSParser;
+import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 
 /**
@@ -16,8 +17,20 @@ public class CurrentWeatherHandler extends BaseCommandHandler {
     }
 
     public String performAction(Update update) {
-
-        RSSParser parser = new RSSParser(Const.CurrentWeather_EN);
+        String url = Const.CurrentWeather_EN;
+        Message message = update.getMessage();
+        switch (getLanguage(message.getChatId().toString())){
+            case Lang_EN:
+                url = Const.CurrentWeather_EN;
+                break;
+            case Lang_TC:
+                url = Const.CurrentWeather_TC;
+                break;
+            case Lang_SC:
+                url = Const.CurrentWeather_SC;
+                break;
+        }
+        RSSParser parser = new RSSParser(url);
         return parser.getBody();
     }
 }
