@@ -8,6 +8,10 @@ import org.telegram.telegrambots.api.objects.Update;
 /**
  * Created by HinL on 9/16/2016.
  */
+
+/**
+ * Reutrn the current Weather String from RSS
+ */
 public class CurrentWeatherHandler extends BaseCommandHandler {
 
     private static final String[] commands = {"current"};
@@ -17,9 +21,12 @@ public class CurrentWeatherHandler extends BaseCommandHandler {
     }
 
     public String performAction(Update update) {
+        return performAction(update.getUpdateId().toString(), update.getMessage().getText());
+    }
+
+    public String performAction(String chatId, String message) {
         String url = Const.CurrentWeather_EN;
-        Message message = update.getMessage();
-        switch (getLanguage(message.getChatId().toString())){
+        switch (getLanguage(chatId)){
             case Lang_EN:
                 url = Const.CurrentWeather_EN;
                 break;

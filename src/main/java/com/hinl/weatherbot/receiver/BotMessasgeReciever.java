@@ -1,6 +1,7 @@
 package com.hinl.weatherbot.receiver;
 
 import com.hinl.weatherbot.Handler.BaseCommandHandler;
+import com.hinl.weatherbot.Handler.SubscribeHandler;
 import com.hinl.weatherbot.Utils.Const;
 import com.hinl.weatherbot.Utils.DBHelper;
 import org.apache.http.util.TextUtils;
@@ -9,7 +10,6 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,21 +17,41 @@ import java.util.List;
 /**
  * Created by HinL on 9/16/2016.
  */
+
+/**
+ * For handling different message received
+ */
 public class BotMessasgeReciever extends TelegramLongPollingBot {
 
 
     private static final String TopicCommand = "topics";
 
+    private static final String TellMe = "tellme ";
+
     static HashMap<String, String> actionHandlerMapper = new HashMap<String, String>();
     static HashMap<String, String> hiddenActionHandlerMapper = new HashMap<String, String>();
 
-    public static String getCommands(){
+    /**
+     *  Get the topicList which register to the handler
+     * @return String LIst of Topics
+     */
+    public static List<String> getTopicsList(){
         List<String> commands = new ArrayList<String>(actionHandlerMapper.keySet());
+        return commands;
+    }
+
+    /**
+     * Get the topicList which register to the handler
+     * @return appended String of topic
+     */
+
+    public static String getTopics(){
+        List<String> commands = getTopicsList();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < commands.size(); i++){
             builder.append(commands.get(i));
             if (i != commands.size()-1){
-                builder.append(" ,");
+                builder.append(", ");
             }
         }
         return builder.toString();
@@ -43,6 +63,10 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Register different handler for topic handling
+     * @param handlerClass
+     */
     public static void registerHandler(Class<? extends BaseCommandHandler> handlerClass){
         try {
             String[] actions = handlerClass.getConstructor().newInstance().getHooks();
@@ -53,6 +77,11 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Register different handler for command handling
+     * @param handlerClass
+     */
     public static void registerHiddenHandler(Class<? extends BaseCommandHandler> handlerClass){
         try {
             String[] actions = handlerClass.getConstructor().newInstance().getHooks();
@@ -64,6 +93,12 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
         }
     }
 
+
+    /**
+     *  Get the BaseCOmmandHandler From different command or topics
+     * @param action
+     * @return BaseCommandHandler for different action handling
+     */
 
     public static BaseCommandHandler getHandler(String action){
         String actionHandlerClassName = actionHandlerMapper.get(action);
@@ -93,6 +128,12 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
 //        return getHandler(pushObject.action);
 //    }
 
+    /**
+     *  Create the instance of BaseCOmmandHandler
+     * @param hClass
+     * @return BaseCommandHandler for different action handling
+     */
+
     private static BaseCommandHandler getHandler(Class<? extends BaseCommandHandler> hClass){
         BaseCommandHandler commandHandler = null;
         try {
@@ -104,6 +145,10 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
     }
 
 
+    /**
+     *  The method called by the long polling job of telegram API
+     * @param update
+     */
     public void onUpdateReceived(Update update) {
 
         if(update.hasMessage()) {
@@ -111,20 +156,42 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
 
             //check if the message has text. it could also contain for example a location ( message.hasLocation() )
             if (message.hasText()) {
+
+                String chatId = message.getChatId().toString();
                 String msg = message.getText();
                 if (msg.trim().equals("/start")) {
-                    DBHelper.addChat(message.getChatId().toString());
+                    DBHelper.addChat(chatId);
                 }else if (msg.trim().equals(TopicCommand)){
                     SendMessage sendMessageRequest = new SendMessage();
                     sendMessageRequest.setChatId(message.getChatId().toString());
-                    sendMessageRequest.setText(getCommands());
+                    sendMessageRequest.setText(getTopics());
                     sendMsg(sendMessageRequest);
                 } else if (msg.equals("Admin clear")) {
                     DBHelper.clearTable();
+                } else if (msg.startsWith(TellMe)){
+                    String submsg = msg.substring(TellMe.length());
+                    BaseCommandHandler handler = getHandler(submsg.trim());
+                    SendMessage sendMessageRequest = new SendMessage();
+//                    if (TextUtils.isEmpty(chatId)){
+//                        chatId = update.g
+//                    }
+                    sendMessageRequest.setChatId(chatId);
+                    if (handler == null){
+                        sendMessageRequest.setText("error");
+                    } else {
+                        String ret = handler.performAction(chatId, submsg);
+                        sendMessageRequest.setText(ret);
+                    }
+                    sendMsg(sendMessageRequest);
+                } else if (SubscribeHandler.isSubScription(msg)) {
+                    String ret = new SubscribeHandler().performAction(update);
+                    SendMessage sendMessageRequest = new SendMessage();
+                    sendMessageRequest.setChatId(chatId);
+                    sendMessageRequest.setText(ret);
                 } else {
                     BaseCommandHandler handler = getHandler(msg.trim());
                     SendMessage sendMessageRequest = new SendMessage();
-                    sendMessageRequest.setChatId(message.getChatId().toString());
+                    sendMessageRequest.setChatId(chatId);
                     if (handler == null){
                         sendMessageRequest.setText("error");
                     } else {
@@ -133,7 +200,6 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
                     }
                     sendMsg(sendMessageRequest);
                 }
-                System.out.println("ids:"+DBHelper.getAllId());
             }
         }
 

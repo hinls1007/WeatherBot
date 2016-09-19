@@ -8,6 +8,10 @@ import org.telegram.telegrambots.api.objects.Update;
 /**
  * Created by HinL on 9/17/2016.
  */
+
+/**
+ * Reutrn the current Weather WarningString from RSS
+ */
 public class WarningHandler extends BaseCommandHandler{
 
     private static final String[] commands = {"warning"};
@@ -17,9 +21,13 @@ public class WarningHandler extends BaseCommandHandler{
     }
 
     public String performAction(Update update) {
+        return performAction(update.getUpdateId().toString(), update.getMessage().getText());
+    }
+
+    public String performAction(String chatId, String message) {
+
         String url = Const.WeatherWarning_EN;
-        Message message = update.getMessage();
-        switch (getLanguage(message.getChatId().toString())){
+        switch (getLanguage(chatId)){
             case Lang_EN:
                 url = Const.WeatherWarning_EN;
                 break;

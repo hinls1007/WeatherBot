@@ -13,6 +13,11 @@ import java.util.Iterator;
 /**
  * Created by HinL on 9/16/2016.
  */
+
+
+/**
+ * Get the RSS respond form URL and parse to JAVA Object
+ */
 public class RSSParser {
 
     URL url;
@@ -28,6 +33,10 @@ public class RSSParser {
         this.url = url;
     }
 
+    /**
+     *  Get the BodyString From the RSS respond and parse to plain text
+     * @return Plain text RSS body respond
+     */
     public String getBody() {
         StringBuilder bodyBuilder = new StringBuilder();
         try {
@@ -54,7 +63,10 @@ public class RSSParser {
         }
         return bodyBuilder.toString();
     }
-
+    /**
+     *  Get the publish Date From the RSS respond and parse to Java Date
+     * @return Date of publish
+     */
     public Date getPubDate(){
         try {
             HttpURLConnection httpcon = (HttpURLConnection) url.openConnection();
