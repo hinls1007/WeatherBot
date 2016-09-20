@@ -166,8 +166,6 @@ public class BotMessasgeReciever extends TelegramLongPollingBot {
                     sendMessageRequest.setChatId(message.getChatId().toString());
                     sendMessageRequest.setText(getTopics());
                     sendMsg(sendMessageRequest);
-                } else if (msg.equals("Admin clear")) {
-                    DBHelper.clearTable();
                 } else if (msg.startsWith(TellMe)){
                     String submsg = msg.substring(TellMe.length());
                     BaseCommandHandler handler = getHandler(submsg.trim());
