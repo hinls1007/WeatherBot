@@ -19,8 +19,11 @@ How to use the Java code
 The Main.java in the package 'com.hinl.weatherbot' already have all ingredient you need to compile the Telegram bot
 
 The only place you need to modify is the Const.java in package 'com.hinl.weatherbot.Utils'.
+
+```java
     public static final String BOT_USERNAME = "[Telegram Bot Username]";
     public static final String BOT_TOKEN = "[Telegram Bot Token]";
+```
 
 Username and the token is get From the Telegram BotFather (https://telegram.me/botfather). You can create your own bot in BotFather and get the username and token
 
